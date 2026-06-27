@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmartTech Solutions | AI Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Actualizado el enlace de la librería para asegurar compatibilidad -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .font-tech {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Tech Background Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+        }
+
+        /* Neon Glow Effects */
+        .tech-glow {
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.2), inset 0 0 10px rgba(14, 165, 233, 0.1);
+        }
+        .tech-border {
+            border: 1px solid rgba(14, 165, 233, 0.3);
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            height: 350px;
+        }
+        @media (max-width: 640px) {
+            .chart-container { height: 300px; }
+        }
+
+        /* Connecting Tech Lines */
+        .step-node { position: relative; }
+        
+        /* Mobile Vertical Line */
+        @media (max-width: 767px) {
+            .step-node::after {
+                content: '';
+                position: absolute;
+                top: 4rem;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 2px;
+                height: 4rem;
+                background: linear-gradient(180deg, #0ea5e9, transparent);
+                z-index: -1;
+            }
+            .step-node.last-node::after { display: none; }
+        }
+        
+        /* Desktop Horizontal Line */
+        @media (min-width: 768px) {
+            .step-node::after {
+                content: '';
+                position: absolute;
+                top: 2rem;
+                left: 50%;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, #0ea5e9, transparent);
+                z-index: -1;
+            }
+            .step-node.last-node::after { display: none; }
+        }
+
+        /* Blinking Status Indicator */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .status-dot {
+            animation: blink 2s infinite;
+        }
+
+        /* Language Toggle Logic via CSS */
+        .lang-en { display: none; }
+        html.lang-english .lang-en { display: inline; }
+        html.lang-english .lang-es { display: none; }
+        html.lang-english div.lang-en, html.lang-english p.lang-en, html.lang-english h1.lang-en, html.lang-english h2.lang-en, html.lang-english h3.lang-en, html.lang-english h4.lang-en { display: block; }
+        html.lang-english span.lang-en { display: inline; }
+
+        /* Ajustes para impresión en PDF */
+        @media print {
+            *, body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body {
+                background-color: #0f172a !important;
+                background-image: 
+                    linear-gradient(to right, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(56, 189, 248, 0.05) 1px, transparent 1px) !important;
+            }
+            .hide-on-print {
+                display: none !important;
+            }
+            /* Evita que los gráficos y tarjetas se partan a la mitad al cambiar de página */
+            .chart-container, .group {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="bg-grid-pattern relative" id="inicio">
+
+    <!-- HEADER -->
+    <header class="relative pt-8 pb-16 px-6 border-b border-sky-900/50 overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/20 rounded-full blur-[120px] -z-10"></div>
+        <div class="max-w-6xl mx-auto relative z-10">
+            
+            <!-- TOP BAR (Botones alineados) -->
+            <div class="relative flex justify-center items-center w-full mb-10">
+                <!-- Indicador de Sistema -->
+                <div class="inline-flex items-center space-x-2 bg-slate-800/50 border border-sky-500/30 rounded-full px-4 py-1.5">
+                    <div class="w-2 h-2 bg-amber-400 rounded-full status-dot shadow-[0_0_8px_rgba(251,191,36,0.8)]"></div>
+                    <span class="font-tech text-xs text-amber-300 tracking-wider">
+                        <span class="lang-es">SISTEMA ACTIVO</span>
+                        <span class="lang-en">SYSTEM ACTIVE</span>
+                    </span>
+                </div>
+
+                <!-- Botones Bilingües -->
+                <div class="absolute left-0 flex space-x-1 bg-slate-800/80 backdrop-blur-md p-1.5 rounded-full tech-border font-tech text-xs hide-on-print">
+                    <button id="btn-es" class="px-4 py-1.5 rounded-full bg-sky-500 text-white font-bold transition-all shadow-[0_0_10px_rgba(14,165,233,0.5)]">ES</button>
+                    <button id="btn-en" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white font-bold transition-all">EN</button>
+                </div>
+            </div>
+
+            <!-- Título Central -->
+            <div class="text-center">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">
+                    SmartTech Solutions
+                </h1>
+                <p class="font-tech text-sky-400 text-sm sm:text-base mb-8 tracking-widest uppercase">
+                <span class="lang-es">~Estructurando Ideas, Desarrollando Realidades~</span>
+                <span class="lang-en">"Building Ideas, Creating Realities"</span>
+            </p>
+                <p class="text-lg sm:text-xl md:text-2xl font-light text-slate-300 max-w-3xl mx-auto px-4">
+                    <span class="lang-es">Maximizando la Eficiencia Operativa mediante Ecosistemas de Integración Concurrente y Agentes Autónomos Digitales.</span>
+                    <span class="lang-en">Maximizing Operational Efficiency Through Integrated Ecosystems and Autonomous Digital Agents</span>
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+        
+        <!-- SECCIÓN 1: EFICIENCIA -->
+        <section class="mb-10 sm:mb-12 relative">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">
+                    <span class="lang-es">La Revolución de la Eficiencia</span>
+                    <span class="lang-en">The Efficiency Revolution</span>
+                </h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    <span class="lang-es">La implementación de IA no es solo una mejora tecnológica, es una necesidad matemática para escalar operaciones reduciendo costos.</span>
+                    <span class="lang-en">AI implementation isn't just a tech upgrade, it's a mathematical necessity to scale operations while reducing costs.</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                <div class="lg:col-span-2 bg-slate-800/40 p-6 rounded-3xl tech-border tech-glow backdrop-blur-sm">
+                    <div class="chart-container">
+                        <canvas id="efficiencyChart"></canvas>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-blue-900/20 p-6 rounded-2xl border-l-4 border-blue-500 tech-glow backdrop-blur-sm">
+                        <div class="font-tech text-amber-400 text-sm mb-1">DATA_01</div>
+                        <h4 class="font-bold text-white text-xl mb-2">
+                            <span class="lang-es">90% Menos Costos</span>
+                            <span class="lang-en">90% Cost Reduction</span>
+                        </h4>
+                        <p class="text-slate-400 text-sm">
+                            <span class="lang-es">Minimice los gastos fijos asociados a la contratación tradicional.</span>
+                            <span class="lang-en">Minimize fixed overhead associated with traditional hiring models.</span>
+                        </p>
+                    </div>
+                    <div class="bg-cyan-900/20 p-6 rounded-2xl border-l-4 border-cyan-400 tech-glow backdrop-blur-sm">
+                        <div class="font-tech text-amber-400 text-sm mb-1">DATA_02</div>
+                        <h4 class="font-bold text-white text-xl mb-2">
+                            <span class="lang-es">Escalabilidad Ilimitada</span>
+                            <span class="lang-en">Limitless Scalability</span>
+                        </h4>
+                        <p class="text-slate-400 text-sm">
+                            <span class="lang-es">Gestione miles de peticiones simultáneas sin pérdida de latencia.</span>
+                            <span class="lang-en">Manage thousands of simultaneous requests with zero latency loss.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: PORTAFOLIO DE AGENTES -->
+        <section class="mb-16 sm:mb-20">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-white mb-3">
+                    <span class="lang-es">Agentes Especializados</span>
+                    <span class="lang-en">Specialized AI Agents</span>
+                </h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    <span class="lang-es">Arquitecturas neuronales entrenadas específicamente para dominar cada área de su empresa.</span>
+                    <span class="lang-en">Neural architectures specifically trained to dominate every area of your business.</span>
+                </p>
+            </div>
+
+            <!-- GRID DE 3 COLUMNAS PARA 6 TARJETAS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                <!-- Card 1 -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl tech-border hover:bg-slate-700/50 transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-bl-full group-hover:bg-blue-500/30 transition-colors"></div>
+                    <div class="text-4xl mb-4">📊💰</div>
+                    <h3 class="font-bold text-xl mb-2 text-white">
+                        <span class="lang-es">Ventas Pro</span>
+                        <span class="lang-en">Sales Pro</span>
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        <span class="lang-es">Cierre ventas y análisis de prospectos de forma automática.</span>
+                        <span class="lang-en">Close sales and qualify leads automatically.</span>
+                    </p>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl tech-border hover:bg-slate-700/50 transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-sky-500/10 rounded-bl-full group-hover:bg-sky-500/30 transition-colors"></div>
+                    <div class="text-4xl mb-4">👩‍💻📆</div>
+                    <h3 class="font-bold text-xl mb-2 text-white">
+                        <span class="lang-es">Recepción IA</span>
+                        <span class="lang-en">AI Reception</span>
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        <span class="lang-es">Gestión de citas y atención al cliente en milisegundos 24/7 los 365 dias del año</span>
+                        <span class="lang-en">Appointment management and customer care in milliseconds.</span>
+                    </p>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl tech-border hover:bg-slate-700/50 transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full group-hover:bg-cyan-500/30 transition-colors"></div>
+                    <div class="text-4xl mb-4">🛡️⚖️</div>
+                    <h3 class="font-bold text-xl mb-2 text-white">
+                        <span class="lang-es">Asistente Legal</span>
+                        <span class="lang-en">Legal Assistant</span>
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        <span class="lang-es">Triaje de casos y análisis de documentos de alta precisión.</span>
+                        <span class="lang-en">Case triage and high-precision document analysis.</span>
+                    </p>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl tech-border hover:bg-slate-700/50 transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-indigo-500/10 rounded-bl-full group-hover:bg-indigo-500/30 transition-colors"></div>
+                    <div class="text-4xl mb-4">🏋🏻🥙</div>
+                    <h3 class="font-bold text-xl mb-2 text-white">
+                        <span class="lang-es">Coach Fitness</span>
+                        <span class="lang-en">Fitness Coach</span>
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        <span class="lang-es">Generación de algoritmos de entrenamiento personalizados.</span>
+                        <span class="lang-en">Generation of customized training algorithms.</span>
+                    </p>
+                </div>
+                <!-- Card 5 -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl tech-border hover:bg-slate-700/50 transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-fuchsia-500/10 rounded-bl-full group-hover:bg-fuchsia-500/30 transition-colors"></div>
+                    <div class="text-4xl mb-4">🧑‍🎨🖼️</div>
+                    <h3 class="font-bold text-xl mb-2 text-white">
+                        <span class="lang-es">Creador Visual</span>
+                        <span class="lang-en">Ad Image Generator</span>
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        <span class="lang-es">Generación de imágenes publicitarias hiperrealistas en segundos.</span>
+                        <span class="lang-en">Generation of hyper-realistic advertising images in seconds.</span>
+                    </p>
+                </div>
+                <!-- Card 6 -->
+                <div class="bg-slate-800/20 p-6 rounded-2xl border-2 border-dashed border-amber-500/30 flex flex-col justify-center relative overflow-hidden group hover:border-amber-500/60 transition-colors">
+                    <div class="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="text-4xl mb-4 opacity-50 group-hover:opacity-100 transition-opacity relative z-10">🚀</div>
+                    <h3 class="font-bold text-xl mb-2 text-amber-400 relative z-10">
+                        <span class="lang-es">Proyectos en camino...</span>
+                        <span class="lang-en">Projects in development...</span>
+                    </h3>
+                    <p class="text-sm text-slate-500 group-hover:text-slate-300 transition-colors relative z-10">
+                        <span class="lang-es">Agentes de Recursos Humanos, Análisis Financiero Predictivo y más.</span>
+                        <span class="lang-en">HR Agents, Predictive Financial Analysis and more.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Panel Radar -->
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 sm:p-10 rounded-3xl tech-border tech-glow relative">
+                <div class="absolute top-4 left-4 font-tech text-xs text-sky-500/50"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-6">
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-4 text-white">
+                            <span class="lang-es">Arquitectura de Rendimiento</span>
+                            <span class="lang-en">Performance Architecture</span>
+                        </h3>
+                        <p class="text-slate-400 mb-8 text-sm leading-relaxed">
+                            <span class="lang-es">Cada agente ejecuta un pipeline lógico distinto. Ventas maximiza el <i>engagement</i> probabilístico, mientras que Legal opera bajo estrictas reglas de cumplimiento (determinismo).</span>
+                            <span class="lang-en">Each agent executes a distinct logic pipeline. Sales maximizes probabilistic engagement, while Legal operates under strict compliance rules (determinism).</span>
+                        </p>
+                        <div class="space-y-4 font-tech text-sm">
+                            <div class="flex items-center bg-slate-800/50 p-2 rounded border border-blue-500/30">
+                                <div class="w-3 h-3 bg-blue-500 rounded-sm mr-3"></div>
+                                <span class="text-blue-100">
+                                    <span class="lang-es">Optimización de Conversión</span>
+                                    <span class="lang-en">Conversion Optimization</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center bg-slate-800/50 p-2 rounded border border-amber-500/50">
+                                <div class="w-3 h-3 bg-amber-500 rounded-sm mr-3 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></div>
+                                <span class="text-amber-100">
+                                    <span class="lang-es">Cumplimiento Normativo</span>
+                                    <span class="lang-en">Regulatory Compliance</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: PROCESO -->
+        <section class="mb-16 relative">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">
+                    <span class="lang-es">Protocolo de Integración</span>
+                    <span class="lang-en">Integration Protocol</span>
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-8 relative">
+                <div class="text-center step-node z-10">
+                    <div class="w-16 h-16 bg-slate-800 border-2 border-blue-600 text-amber-400 rounded-xl flex items-center justify-center mx-auto mb-4 font-tech text-xl tech-glow transform rotate-45">
+                        <span class="-rotate-45">01</span>
+                    </div>
+                    <h4 class="font-bold mb-2 text-sky-200 mt-6">
+                        <span class="lang-es">Análisis</span>
+                        <span class="lang-en">Analysis</span>
+                    </h4>
+                    <p class="text-xs text-slate-400 px-2 font-tech">
+                        <span class="lang-es">Mapeo de flujos de datos</span>
+                        <span class="lang-en">Data flow mapping</span>
+                    </p>
+                </div>
+                <div class="text-center step-node z-10">
+                    <div class="w-16 h-16 bg-slate-800 border-2 border-sky-500 text-amber-400 rounded-xl flex items-center justify-center mx-auto mb-4 font-tech text-xl tech-glow transform rotate-45">
+                        <span class="-rotate-45">02</span>
+                    </div>
+                    <h4 class="font-bold mb-2 text-sky-200 mt-6">
+                        <span class="lang-es">Entrenamiento heurístico</span>
+                        <span class="lang-en">Heuristic training</span>
+                    </h4>
+                    <p class="text-xs text-slate-400 px-2 font-tech">
+                        <span class="lang-es">Inyección de contexto LLM</span>
+                        <span class="lang-en">LLM context injection</span>
+                    </p>
+                </div>
+                <div class="text-center step-node z-10">
+                    <div class="w-16 h-16 bg-slate-800 border-2 border-cyan-400 text-amber-400 rounded-xl flex items-center justify-center mx-auto mb-4 font-tech text-xl tech-glow transform rotate-45">
+                        <span class="-rotate-45">03</span>
+                    </div>
+                    <h4 class="font-bold mb-2 text-sky-200 mt-6">
+                        <span class="lang-es">Arquitectura Integral</span>
+                        <span class="lang-en">Complete Architecture</span>
+                    </h4>
+                    <p class="text-xs text-slate-400 px-2 font-tech">
+                        <span class="lang-es">Conexión webhooks/CRM</span>
+                        <span class="lang-en">CRM/Webhook connection</span>
+                    </p>
+                </div>
+                <div class="text-center step-node last-node z-10">
+                    <div class="w-16 h-16 bg-amber-500 border-2 border-amber-300 text-slate-900 rounded-xl flex items-center justify-center mx-auto mb-4 font-tech text-xl tech-glow transform rotate-45 shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+                        <span class="-rotate-45 font-bold">04</span>
+                    </div>
+                    <h4 class="font-bold mb-2 text-amber-400 mt-6">
+                        <span class="lang-es">Despliegue</span>
+                        <span class="lang-en">Deploy</span>
+                    </h4>
+                    <p class="text-xs text-slate-400 px-2 font-tech">
+                        <span class="lang-es">Sistema en línea (Go-Live)</span>
+                        <span class="lang-en">System Online (Go-Live)</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA FINAL (Link a WhatsApp) -->
+        <section class="text-center py-10 px-4 bg-slate-800/80 border border-sky-500/50 rounded-3xl tech-glow relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-400/20 mix-blend-overlay"></div>
+            <h2 class="text-3xl sm:text-4xl font-bold mb-5 relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white to-amber-200">
+                <span class="lang-es">Inicie su Transición Digital</span>
+                <span class="lang-en">Start Your Digital Transition</span>
+            </h2>
+            <p class="text-base sm:text-lg mb-8 text-sky-200 max-w-2xl mx-auto font-light relative z-10">
+                <span class="lang-es">Solicite una auditoría técnica gratuita de sus procesos y descubra su potencial de automatización.</span>
+                <span class="lang-en">Request a free technical audit of your processes and discover your automation potential.</span>
+            </p>
+            <a id="cta-whatsapp" href="https://wa.me/5212227134040?text=Hola,%20me%20gustar%C3%ADa%20solicitar%20el%20diagn%C3%B3stico%20gratuito%20de%20SmartTech." target="_blank" class="relative z-10 inline-block bg-gradient-to-r from-sky-500 to-blue-600 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:scale-105 transition-transform shadow-[0_0_25px_rgba(14,165,233,0.6)] w-full sm:w-auto">
+                <span class="lang-es">Iniciar Diagnóstico</span>
+                <span class="lang-en">Start Diagnostics</span>
+            </a>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-500 py-8 border-t border-slate-800 font-tech text-xs relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+            <p>
+                <span class="lang-es">&copy; 2026 SmartTech Solutions. Todos los sistemas operando.</span>
+                <span class="lang-en">&copy; 2026 SmartTech Solutions. All systems operational.</span>
+            </p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="#inicio" class="text-sky-500 hover:text-sky-300 transition hide-on-print font-bold">
+                    <span class="lang-es">VOLVER AL INICIO ↑</span>
+                    <span class="lang-en">BACK TO TOP ↑</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Envolver toda la lógica de JavaScript para ejecutarse una vez que el DOM haya cargado completamente.
+        // Esto soluciona el error "ReferenceError: Chart is not defined".
+        window.addEventListener('load', function() {
+            // TRADUCCIONES PARA CHART.JS
+            const chartDict = {
+                es: {
+                    effLabels: ['Costo Operativo', 'Latencia de Resp.', 'Capacidad (Escala)'],
+                    effDataset1: 'Factor Humano',
+                    effDataset2: 'Motor IA (SmartTech)',
+                    radarLabels: ['NLP (Atención)', 'Precisión (Legal)', 'Lógica Condicional', 'Agendamiento', 'Tasa de Conversión'],
+                    radarData1: 'Modelo Ventas',
+                    radarData2: 'Modelo Legal'
+                },
+                en: {
+                    effLabels: ['Operating Cost', 'Response Latency', 'Capacity (Scale)'],
+                    effDataset1: 'Human Factor',
+                    effDataset2: 'AI Engine (SmartTech)',
+                    radarLabels: ['NLP (Support)', 'Precision (Legal)', 'Conditional Logic', 'Scheduling', 'Conversion Rate'],
+                    radarData1: 'Sales Model',
+                    radarData2: 'Legal Model'
+                }
+            };
+
+            let currentLang = 'es';
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+            // GRÁFICO 1: EFICIENCIA
+            const ctxEff = document.getElementById('efficiencyChart').getContext('2d');
+            const efficiencyChart = new Chart(ctxEff, {
+                type: 'bar',
+                data: {
+                    labels: chartDict[currentLang].effLabels,
+                    datasets: [
+                        {
+                            label: chartDict[currentLang].effDataset1,
+                            data: [100, 90, 15],
+                            backgroundColor: 'rgba(71, 85, 105, 0.7)', // Slate
+                            borderColor: '#64748b',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: chartDict[currentLang].effDataset2,
+                            data: [15, 2, 100],
+                            backgroundColor: 'rgba(14, 165, 233, 0.8)', // Sky Blue
+                            borderColor: '#38bdf8',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(14, 165, 233, 0.5)'
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#e2e8f0' } }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.05)' } 
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // GRÁFICO 2: RADAR
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            const radarChart = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: chartDict[currentLang].radarLabels,
+                    datasets: [
+                        {
+                            label: chartDict[currentLang].radarData1,
+                            data: [95, 40, 70, 85, 100],
+                            borderColor: '#3b82f6', // Blue 500
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            pointBackgroundColor: '#60a5fa',
+                            pointBorderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        {
+                            label: chartDict[currentLang].radarData2,
+                            data: [95, 100, 95, 50, 60],
+                            borderColor: '#f59e0b', // Amber 500
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            pointBackgroundColor: '#f59e0b',
+                            pointBorderColor: '#fff',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#e2e8f0' } }
+                    },
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(14, 165, 233, 0.2)' },
+                            angleLines: { color: 'rgba(14, 165, 233, 0.2)' },
+                            pointLabels: { color: '#bae6fd', font: { size: 10 } },
+                            ticks: { display: false, max: 100 }
+                        }
+                    }
+                }
+            });
+
+            // LÓGICA DEL BOTÓN BILINGÜE
+            const btnEs = document.getElementById('btn-es');
+            const btnEn = document.getElementById('btn-en');
+            const htmlRoot = document.getElementById('html-root');
+            const btnCta = document.getElementById('cta-whatsapp');
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                
+                // UI Toggle
+                if(lang === 'en') {
+                    htmlRoot.classList.add('lang-english');
+                    btnEn.classList.replace('text-slate-400', 'text-white');
+                    btnEn.classList.add('bg-sky-500', 'shadow-[0_0_10px_rgba(14,165,233,0.5)]');
+                    btnEs.classList.remove('bg-sky-500', 'text-white', 'shadow-[0_0_10px_rgba(14,165,233,0.5)]');
+                    btnEs.classList.add('text-slate-400');
+                    
+                    // Actualizar enlace de WhatsApp a Inglés
+                    btnCta.href = "https://wa.me/5212227134040?text=Hello,%20I'd%20like%20to%20request%20SmartTech%20Solutions'%20free%20diagnostic%20service";
+                } else {
+                    htmlRoot.classList.remove('lang-english');
+                    btnEs.classList.replace('text-slate-400', 'text-white');
+                    btnEs.classList.add('bg-sky-500', 'shadow-[0_0_10px_rgba(14,165,233,0.5)]');
+                    btnEn.classList.remove('bg-sky-500', 'text-white', 'shadow-[0_0_10px_rgba(14,165,233,0.5)]');
+                    btnEn.classList.add('text-slate-400');
+                    
+                    // Actualizar enlace de WhatsApp a Español
+                    btnCta.href = "https://wa.me/5212227134040?text=Hola%2C%20me%20gustar%C3%ADa%20solicitar%20el%20diagn%C3%B3stico%20gratuito%20de%20SmartTech%20Solutions.";
+                }
+
+                // Actualizar Chart.js Datos
+                const dict = chartDict[lang];
+                
+                efficiencyChart.data.labels = dict.effLabels;
+                efficiencyChart.data.datasets[0].label = dict.effDataset1;
+                efficiencyChart.data.datasets[1].label = dict.effDataset2;
+                efficiencyChart.update();
+
+                radarChart.data.labels = dict.radarLabels;
+                radarChart.data.datasets[0].label = dict.radarData1;
+                radarChart.data.datasets[1].label = dict.radarData2;
+                radarChart.update();
+            }
+
+            btnEs.addEventListener('click', () => setLanguage('es'));
+            btnEn.addEventListener('click', () => setLanguage('en'));
+        });
+    </script>
+</body>
+</html>
