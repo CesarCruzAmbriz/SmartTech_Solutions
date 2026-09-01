@@ -2,6 +2,9 @@
 
 ![Estado: Activo](https://img.shields.io/badge/Estado-Activo-brightgreen)
 ![Plataforma: GitHub Pages](https://img.shields.io/badge/Plataforma-GitHub_Pages-blue)
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Scikit-Learn](https://img.shields.io/badge/Library-Scikit_Learn-orange)
+![Status](https://img.shields.io/badge/Status-Complete-green)
 
 Bienvenido al repositorio oficial de la página web de **SmartTech Solutions**, una plataforma diseñada para mostrar servicios de optimización tecnológica y automatización mediante Inteligencia Artificial.
 
