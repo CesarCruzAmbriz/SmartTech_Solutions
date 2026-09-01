@@ -1,6 +1,6 @@
 # 🚀 SmartTech Solutions - Landing Page
 
-![Estado: Activo](https://img.shields.io/badge/Estado-Completo-brightgreen)
+![Estado: Activo](https://img.shields.io/badge/Estado-Activo-brightgreen)
 ![Plataforma: GitHub Pages](https://img.shields.io/badge/Plataforma-GitHub_Pages-blue)
 
 Bienvenido al repositorio oficial de la página web de **SmartTech Solutions**, una plataforma diseñada para mostrar servicios de optimización tecnológica y automatización mediante Inteligencia Artificial.
